@@ -23,16 +23,35 @@ WALKING_LEFT = pygame.image.load(os.path.join("Assets", "walking_left.png"))
 WALKING_STAND = pygame.image.load(os.path.join("Assets", "walking_stand.png"))
 # WALKING_STAND = pygame.image.load(os.path.join("Assets", "walking_stand_ground.png"))
 BACKGROUND = pygame.image.load(os.path.join("Assets", "background.png"))
+WALL_1 = pygame.image.load(os.path.join("Assets", "wall_left_bottom.png"))
+WALL_2 = pygame.image.load(os.path.join("Assets", "wall_right_bottom.png"))
+WALL_3 = pygame.image.load(os.path.join("Assets", "wall_left_top.png"))
+WALL_4 = pygame.image.load(os.path.join("Assets", "wall_right_top.png"))
+BRIDGE = pygame.image.load(os.path.join("Assets", "bridge.png"))
 
 OBSTACLES = [
     # edges:
-    pygame.Rect(0, 0, -1, HEIGHT),
-    pygame.Rect(0, 0, WIDTH, -1),
-    pygame.Rect(0, HEIGHT+1, WIDTH, 1), 
-    pygame.Rect(WIDTH, 1, 1, HEIGHT),
+    pygame.Rect(0, 0, 10, HEIGHT),
+    pygame.Rect(0, 0, WIDTH, 20),
+    pygame.Rect(0, HEIGHT-20, WIDTH, 20), 
+    pygame.Rect(WIDTH-10, 1, 10, HEIGHT),
     # other objects:
-    pygame.Rect(400, 300, 80, 50),
-    pygame.Rect(0, 0, 50, 120),
+    pygame.Rect(644, 32, 49, 323),
+    pygame.Rect(644, 430, 49, 237),
+    pygame.Rect(167, 31, 49, 228),
+    pygame.Rect(167, 336, 49, 156),
+    pygame.Rect(148, 446, 67, 46),
+    pygame.Rect(438, 0, 118, 110),
+    pygame.Rect(438, 163, 118, 380),
+    pygame.Rect(438, 595, 118, 120),
+    pygame.Rect(0, 0, 500, 50),
+    pygame.Rect(0, 0, 150, 115),
+    pygame.Rect(0, 115, 70, 30),
+    pygame.Rect(0, 145, 40, 30),
+    pygame.Rect(0, 420, 40, 30),
+    pygame.Rect(0, 448, 142, 300),
+    pygame.Rect(142, 640, 25, 100),
+    pygame.Rect(275, 50, 55, 25),
 ]
 
 class Character:
@@ -86,6 +105,12 @@ class Player(Character):
 
 def draw_window(player):
     WIN.blit(BACKGROUND, (0, 0))
+    WIN.blit(WALL_1, (149, 336))
+    WIN.blit(WALL_2, (644, 430))
+    WIN.blit(WALL_3, (167, 31))
+    WIN.blit(WALL_4, (644, 32))
+    WIN.blit(BRIDGE, (430, 100))
+    WIN.blit(BRIDGE, (430, 530))
     WIN.blit(reshape_and_rotate(player.pic, player.size, player.rotation), (player.x, player.y))
     pygame.display.update()
 
@@ -104,7 +129,7 @@ def reshape_and_rotate(img, size, rotation):
 
 
 def main():
-    player = Player(WALKING_STAND, name="John", x=500, y=300, speed=3, rotation_speed=4, rotation=0, size=35)
+    player = Player(WALKING_STAND, name="John", x=300, y=300, speed=3, rotation_speed=4, rotation=0, size=35)
     WIN.blit(reshape_and_rotate(player.pic, player.size, player.rotation), (player.x, player.y))
 
     clock = pygame.time.Clock()
@@ -135,9 +160,9 @@ def main():
         draw_window(player)
         
         # draw obstacles:
-        for obstacle in OBSTACLES:
-            pygame.draw.rect(WIN, RED, obstacle)
-        pygame.display.update()
+        # for obstacle in OBSTACLES:
+        #     pygame.draw.rect(WIN, RED, obstacle)
+        # pygame.display.update()
 
 if __name__ == '__main__':
     main()
