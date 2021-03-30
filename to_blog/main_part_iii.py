@@ -7,8 +7,6 @@ pygame.init()
 # base appearance settings:
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
-BLACK = (0, 0, 0)
 
 # base game settings:
 FPS = 60
@@ -18,11 +16,8 @@ pygame.display.set_caption("Walking man")  # app title
 
 # load images:
 PLAYER_RIGHT = pygame.image.load(os.path.join("Assets", "player_right.png"))
-# PLAYER_RIGHT = pygame.image.load(os.path.join("Assets", "guard_right.png"))
 PLAYER_LEFT = pygame.image.load(os.path.join("Assets", "player_left.png"))
-# PLAYER_LEFT = pygame.image.load(os.path.join("Assets", "guard_left.png"))
 PLAYER_STAND = pygame.image.load(os.path.join("Assets", "player_stand.png"))
-# PLAYER_STAND = pygame.image.load(os.path.join("Assets", "guard_stand.png"))
 # PLAYER_STAND = pygame.image.load(os.path.join("Assets", "player_stand_ground.png"))
 BACKGROUND = pygame.image.load(os.path.join("Assets", "background.png"))
 WALL_1 = pygame.image.load(os.path.join("Assets", "wall_left_bottom.png"))
