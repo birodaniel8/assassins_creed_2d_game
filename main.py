@@ -31,12 +31,13 @@ WALL_3 = pygame.image.load(os.path.join("Assets", "wall_left_top.png"))
 WALL_4 = pygame.image.load(os.path.join("Assets", "wall_right_top.png"))
 BRIDGE = pygame.image.load(os.path.join("Assets", "bridge.png"))
 ARROW = pygame.image.load(os.path.join("Assets", "arrow.png"))
+BUSH = pygame.image.load(os.path.join("Assets", "bush.png"))
 
 OBSTACLES = [
     # edges:
     pygame.Rect(0, 0, 10, HEIGHT),
     pygame.Rect(0, 0, WIDTH, 20),
-    pygame.Rect(0, HEIGHT-20, WIDTH, 20), 
+    pygame.Rect(0, HEIGHT-20, WIDTH, 20),
     pygame.Rect(WIDTH-10, 1, 10, HEIGHT),
     # other objects:
     pygame.Rect(644, 32, 49, 323),
@@ -70,6 +71,7 @@ OBSTACLES = [
     pygame.Rect(1142, 460, 150, 40),
 ]
 
+
 class Character:
     def __init__(self, pic, name="John Doe", x=0, y=0, speed=2, rotation_speed=4, rotation=0, size=50):
         # self.__dict__.update(locals())
@@ -79,14 +81,19 @@ class Character:
         self.walk_start_time = None
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
+
 class Player(Character):
+    def __init__(self, pic, name, x, y, speed, rotation_speed, rotation, size):
+        super().__init__(pic, name, x, y, speed, rotation_speed, rotation, size)
+        hiding = False
+
     def move(self, keys_pressed):
         # rotation:
         if keys_pressed[pygame.K_a]:
             self.rotation += self.rotation_speed
         if keys_pressed[pygame.K_d]:
             self.rotation -= self.rotation_speed
-        # movement with 'W': 
+        # movement with 'W':
         if keys_pressed[pygame.K_w]:
             # animation:
             time_now = pygame.time.get_ticks()
@@ -104,7 +111,7 @@ class Player(Character):
             if (pygame.time.get_ticks() - self.walk_last_time > (FPS * 0.6)):
                 x_delta = -np.sin(self.rotation * np.pi / 180) * self.speed
                 y_delta = -np.cos(self.rotation * np.pi / 180) * self.speed
-                
+
                 # create a temporary rectangle with the new positions and check if the move is valid:
                 temp_rect = pygame.Rect(self.rect.x+x_delta, self.rect.y+y_delta, self.size, self.size)
                 num_collides = np.sum([temp_rect.colliderect(obstacle) for obstacle in OBSTACLES])
@@ -119,7 +126,14 @@ class Player(Character):
                     self.pic = PLAYER_STAND
 
 
-def draw_window(player):
+class Bush:
+    def __init__(self, picture, x, y, size, ):
+        self.picture, self.x, self.y, self.size = picture, x, y, size
+        self.cover = False
+        self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
+
+
+def draw_window(player, bushes):
     WIN.blit(BACKGROUND, (0, 0))
     WIN.blit(WALL_1, (149, 336))
     WIN.blit(WALL_2, (644, 430))
@@ -127,7 +141,13 @@ def draw_window(player):
     WIN.blit(WALL_4, (644, 32))
     WIN.blit(BRIDGE, (430, 100))
     WIN.blit(BRIDGE, (430, 530))
+
+    if np.sum([player.rect.colliderect(bush.rect) for bush in bushes]) > 0:
+        player.hiding = True
     WIN.blit(reshape_and_rotate(player.pic, player.size, player.rotation), (player.x, player.y))
+    for bush in bushes:
+        WIN.blit(reshape_and_rotate(bush.picture, bush.size, 0), (bush.x, bush.y))
+    
     if player.x == 1200 and player.y == 570:
         WIN.blit(reshape_and_rotate(ARROW, 100, 0), (1100, 535))
     pygame.display.update()
@@ -148,13 +168,21 @@ def reshape_and_rotate(img, size, rotation):
 
 def main():
     player = Player(PLAYER_STAND, name="John", x=1200, y=570, speed=3, rotation_speed=4, rotation=90, size=35)
+    bushes = [Bush(BUSH, np.random.randint(1075, 1200), np.random.randint(100, 300), 50) for i in range(25)] + \
+        [Bush(BUSH, np.random.randint(1075, 1150), np.random.randint(300, 350), 50) for i in range(5)] + \
+        [Bush(BUSH, np.random.randint(700, 900), np.random.randint(25, 75), 50) for i in range(10)] + \
+        [Bush(BUSH, np.random.randint(800, 850), np.random.randint(200, 350), 50) for i in range(15)] + \
+        [Bush(BUSH, np.random.randint(700, 850), np.random.randint(575, 625), 50) for i in range(7)] + \
+        [Bush(BUSH, np.random.randint(200, 230), np.random.randint(450, 650), 50) for i in range(12)] + \
+        [Bush(BUSH, np.random.randint(225, 240), np.random.randint(100, 200), 50) for i in range(7)] + \
+        [Bush(BUSH, np.random.randint(375, 400), np.random.randint(200, 450), 50) for i in range(10)] 
 
     clock = pygame.time.Clock()
     run = True
     while run:
         # controlling FPS:
         clock.tick(FPS)
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()  # quit game
@@ -164,22 +192,29 @@ def main():
                     player.walk_start_time = pygame.time.get_ticks()  # moving
                 if event.key == pygame.K_LSHIFT:
                     player.speed *= 2  # running
+                # if event.key == pygame.K_n:
+                #     player.speed /= 2
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_w:
                     player.pic = PLAYER_STAND  # stop moving
                 if event.key == pygame.K_LSHIFT:
                     player.speed /= 2  # stop running
+                # if event.key == pygame.K_n:
+                #     player.speed *= 2
         # move player:
         player.move(pygame.key.get_pressed())
 
+        player.hiding = True if np.sum([player.rect.colliderect(bush.rect) for bush in bushes]) > 0 else False
+
         # draw window:
-        draw_window(player)
-        
+        draw_window(player, bushes)
+
         # draw obstacles:
         # for obstacle in OBSTACLES:
         #     pygame.draw.rect(WIN, RED, obstacle)
         # pygame.display.update()
+
 
 if __name__ == '__main__':
     main()
