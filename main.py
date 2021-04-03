@@ -18,11 +18,14 @@ pygame.display.set_caption("Walking man")  # app title
 
 # load images:
 PLAYER_RIGHT = pygame.image.load(os.path.join("Assets", "player_right.png"))
-# PLAYER_RIGHT = pygame.image.load(os.path.join("Assets", "guard_right.png"))
 PLAYER_LEFT = pygame.image.load(os.path.join("Assets", "player_left.png"))
-# PLAYER_LEFT = pygame.image.load(os.path.join("Assets", "guard_left.png"))
 PLAYER_STAND = pygame.image.load(os.path.join("Assets", "player_stand.png"))
-# PLAYER_STAND = pygame.image.load(os.path.join("Assets", "guard_stand.png"))
+GUARD_RIGHT = pygame.image.load(os.path.join("Assets", "guard_right.png"))
+GUARD_LEFT = pygame.image.load(os.path.join("Assets", "guard_left.png"))
+GUARD_STAND = pygame.image.load(os.path.join("Assets", "guard_stand.png"))
+GUARD_DEAD = pygame.image.load(os.path.join("Assets", "guard_dead.png"))
+FIGHT_CLOUD = pygame.image.load(os.path.join("Assets", "fight_cloud.png"))
+VIEW_RANGE = pygame.image.load(os.path.join("Assets", "view_range.png"))
 # PLAYER_STAND = pygame.image.load(os.path.join("Assets", "player_stand_ground.png"))
 BACKGROUND = pygame.image.load(os.path.join("Assets", "background.png"))
 WALL_1 = pygame.image.load(os.path.join("Assets", "wall_left_bottom.png"))
@@ -73,7 +76,7 @@ OBSTACLES = [
 
 
 class Character:
-    def __init__(self, pic, name="John Doe", x=0, y=0, speed=2, rotation_speed=4, rotation=0, size=50):
+    def __init__(self, pic, name="John Doe", x=0, y=0, speed=2, rotation_speed=4, rotation=0, size=35):
         # self.__dict__.update(locals())
         self.pic, self.name, self.x, self.y, self.speed, self.rotation_speed, self.rotation, self.size = pic, name, x, \
             y, speed, rotation_speed, rotation, size
@@ -85,7 +88,7 @@ class Character:
 class Player(Character):
     def __init__(self, pic, name, x, y, speed, rotation_speed, rotation, size):
         super().__init__(pic, name, x, y, speed, rotation_speed, rotation, size)
-        hiding = False
+        self.hiding = False
 
     def move(self, keys_pressed):
         # rotation:
@@ -121,19 +124,28 @@ class Player(Character):
                     self.rect.y += y_delta
                     self.x = self.rect.x
                     self.y = self.rect.y
+                    # print([self.x, self.y])
                     self.walk_last_time = pygame.time.get_ticks()
                 else:
                     self.pic = PLAYER_STAND
 
+class GuardStanding(Character):
+    def __init__(self, pic, name, x, y, rotation, size):
+        super().__init__(pic, name, x, y, speed=0, rotation_speed=0, rotation=rotation, size=size)
+        self.alive = True
+        self.killed_at = None
+        self.view_range_scale = 8
+        self.view_range_x = self.x +self.size / 2 - self.size * self.view_range_scale / 2
+        self.view_range_y = self.y +self.size / 2 - self.size * self.view_range_scale / 2
 
 class Bush:
-    def __init__(self, picture, x, y, size, ):
+    def __init__(self, picture, x, y, size):
         self.picture, self.x, self.y, self.size = picture, x, y, size
         self.cover = False
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
 
-def draw_window(player, bushes):
+def draw_window(player, guards, bushes):
     WIN.blit(BACKGROUND, (0, 0))
     WIN.blit(WALL_1, (149, 336))
     WIN.blit(WALL_2, (644, 430))
@@ -142,16 +154,40 @@ def draw_window(player, bushes):
     WIN.blit(BRIDGE, (430, 100))
     WIN.blit(BRIDGE, (430, 530))
 
+    for guard in guards:
+        WIN.blit(reshape_and_rotate(guard.pic, guard.size, guard.rotation), (guard.x, guard.y))
+        # if not killed or being killed, add the view range:
+        if guard.killed_at is None:
+            WIN.blit(reshape_and_rotate(VIEW_RANGE, guard.size * guard.view_range_scale, guard.rotation-180), 
+                     (guard.view_range_x, guard.view_range_y))
+
+    # player is hiding if it is under the bushes:
     if np.sum([player.rect.colliderect(bush.rect) for bush in bushes]) > 0:
         player.hiding = True
+    
+    # draw player:
     WIN.blit(reshape_and_rotate(player.pic, player.size, player.rotation), (player.x, player.y))
+    
+    # draw bushes:
     for bush in bushes:
         WIN.blit(reshape_and_rotate(bush.picture, bush.size, 0), (bush.x, bush.y))
     
+    # draw arrow at the beginning:
     if player.x == 1200 and player.y == 570:
         WIN.blit(reshape_and_rotate(ARROW, 100, 0), (1100, 535))
+    
+    # interaction with guards:
+    for guard in guards:
+        if player.rect.collidepoint(guard.rect.center) > 0 and guard.alive:
+            WIN.blit(reshape_and_rotate(FIGHT_CLOUD, 70, np.random.randint(180)), (guard.x-guard.size/2, guard.y-guard.size/2))
+            now_time = pygame.time.get_ticks()
+            if guard.killed_at is None:
+                guard.killed_at = now_time
+            elif now_time - guard.killed_at > 200:
+                guard.alive = False
+                guard.pic = GUARD_DEAD
+    
     pygame.display.update()
-
 
 def rotate_around_center(image, angle):
     """rotate an image while keeping its center and size"""
@@ -176,6 +212,7 @@ def main():
         [Bush(BUSH, np.random.randint(200, 230), np.random.randint(450, 650), 50) for i in range(12)] + \
         [Bush(BUSH, np.random.randint(225, 240), np.random.randint(100, 200), 50) for i in range(7)] + \
         [Bush(BUSH, np.random.randint(375, 400), np.random.randint(200, 450), 50) for i in range(10)] 
+    guards = [GuardStanding(GUARD_STAND, name="Guard_1", x=1040, y=560, rotation=0, size=35)]
 
     clock = pygame.time.Clock()
     run = True
@@ -208,7 +245,7 @@ def main():
         player.hiding = True if np.sum([player.rect.colliderect(bush.rect) for bush in bushes]) > 0 else False
 
         # draw window:
-        draw_window(player, bushes)
+        draw_window(player, guards, bushes)
 
         # draw obstacles:
         # for obstacle in OBSTACLES:
