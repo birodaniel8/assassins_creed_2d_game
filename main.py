@@ -23,6 +23,7 @@ GUARD_STAND = pygame.image.load(os.path.join("Assets", "guard_stand.png"))
 GUARD_DEAD = pygame.image.load(os.path.join("Assets", "guard_dead.png"))
 FIGHT_CLOUD = pygame.image.load(os.path.join("Assets", "fight_cloud.png"))
 VIEW_RANGE = pygame.image.load(os.path.join("Assets", "view_range.png"))
+STARTSCREEN = pygame.image.load(os.path.join("Assets", "start_screen.png"))
 BACKGROUND = pygame.image.load(os.path.join("Assets", "background.png"))
 WALL_1 = pygame.image.load(os.path.join("Assets", "wall_left_bottom.png"))
 WALL_2 = pygame.image.load(os.path.join("Assets", "wall_right_bottom.png"))
@@ -78,6 +79,7 @@ KING_FOUND = pygame.USEREVENT + 2
 
 class Character:
     """Character class"""
+
     def __init__(self, pic, name="John Doe", x=0, y=0, speed=2, rotation_speed=4, rotation=0, size=35):
         self.pic, self.name, self.x, self.y, self.speed, self.rotation_speed, self.rotation, self.size = pic, name, x, \
             y, speed, rotation_speed, rotation, size
@@ -88,6 +90,7 @@ class Character:
 
 class Player(Character):
     """Class for the playable character"""
+
     def __init__(self, pic, name, x, y, speed, rotation_speed, rotation, size):
         super().__init__(pic, name, x, y, speed, rotation_speed, rotation, size)
         self.hiding = False
@@ -134,6 +137,7 @@ class Player(Character):
 
 class Guard(Character):
     """Guard class"""
+
     def __init__(self, pic, name, x, y, rotation, size):
         super().__init__(pic, name, x, y, speed=0, rotation_speed=0, rotation=rotation, size=size)
         self.alive = True
@@ -149,11 +153,11 @@ class Guard(Character):
 
 class GuardStanding(Guard):
     """Standing guard class"""
-    pass
 
 
 class GuardWalking(Guard):
     """Walking guard class"""
+
     def __init__(self, pic, name, x, y, rotation, size, speed, moving_direction, target):
         super().__init__(pic, name, x, y, rotation=rotation, size=size)
         # the walking guard will walk between (x1, y1) and (x2, y2) with some speed
@@ -231,6 +235,7 @@ class GuardWalking(Guard):
 
 class Bush:
     """Bush class"""
+
     def __init__(self, picture, x, y, size):
         self.picture, self.x, self.y, self.size = picture, x, y, size
         # the bush rectangle is a third of the bush size to make the hiding more realistic:
@@ -314,7 +319,7 @@ def get_distance_and_angle(obj1, obj2):
     """Get the distance and the angle between two objects with a rectangle in their attributes using cosine law"""
     # applying cosine law:
     a_x, a_y = obj1.rect.centerx, obj1.rect.centery  # A: obj1 location
-    c_x, c_y = obj2.rect.centerx, obj2.rect.centery # C: obj2 location
+    c_x, c_y = obj2.rect.centerx, obj2.rect.centery  # C: obj2 location
     distance_ac = np.sqrt((a_x - c_x)**2 + (a_y - c_y)**2)  # distance between obj1 and obj2
     # generate an auxiliary point B at the direction of obj2 rotation with distance 100 from C:
     x_delta = -np.sin(obj2.rotation * np.pi / 180) * 100
@@ -336,6 +341,8 @@ def guard_alerts(player, guards):
             # if the player is within view range (we cover a little bit less than the half circle, hence the 80 degrees)
             if not player.hiding and distance < 140 and angle < 80:
                 pygame.event.post(pygame.event.Event(GUARD_ALERT))
+            # this is really not an optimal or scalable solution to check all other guards for all guards but with just
+            # a few of them it is ok for now
             for other_guard in guards:
                 if other_guard != guard:
                     distance, angle = get_distance_and_angle(other_guard, guard)
@@ -376,10 +383,10 @@ def main():
                      size=35, speed=3, moving_direction="horizontal", target=625),
         GuardWalking(GUARD_STAND, name="Guard_9", x=300, y=150, rotation=270,
                      size=35, speed=3, moving_direction="vertical", target=520),
-        GuardStanding(GUARD_STAND, name="Guard_6", x=225, y=280, rotation=270, size=35),
+        GuardStanding(GUARD_STAND, name="Guard_10", x=225, y=280, rotation=270, size=35),
     ]
 
-    WIN.blit(BACKGROUND, (0, 0))  # start screen
+    WIN.blit(STARTSCREEN, (0, 0))  # start screen
     pygame.display.update()
     clock = pygame.time.Clock()
     run = True
@@ -421,7 +428,7 @@ def main():
                     draw_text("YOU HAVE FOUND THE KING!")
                     pygame.time.delay(3000)  # wait 3 sec
                     run = False
-                    
+
         if game_started:
 
             # move player:
