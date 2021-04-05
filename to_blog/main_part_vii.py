@@ -1,5 +1,6 @@
 import pygame
 import os
+import sys
 import numpy as np
 
 pygame.init()
@@ -271,8 +272,7 @@ def draw_window(player, guards, bushes):
         WIN.blit(reshape_and_rotate(ARROW, 100, 0), (1100, 535))
 
     # player is hiding if he is under the bushes:
-    if np.sum([player.rect.colliderect(bush.rect) for bush in bushes]) > 0:
-        player.hiding = True
+    if player.hiding:
         WIN.blit(reshape_and_rotate(ARROW, 35, player.rotation-90), (player.x, player.y))
 
     # interaction with guards:
@@ -398,6 +398,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()  # quit game
+                sys.exit()
 
             # start the game with pressing Enter (return):
             if not game_started and event.type == pygame.KEYDOWN:

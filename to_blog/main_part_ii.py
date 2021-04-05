@@ -1,5 +1,6 @@
 import pygame
 import os
+import sys
 import numpy as np
 
 pygame.init()
@@ -95,6 +96,7 @@ def main():
             # quit event:
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:

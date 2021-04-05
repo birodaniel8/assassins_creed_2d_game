@@ -1,5 +1,6 @@
 import pygame
 import os
+import sys
 
 # base game settings:
 FPS = 60
@@ -32,6 +33,7 @@ def main():
             # quit event:
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
 
         # move the image:
         if pygame.key.get_pressed()[pygame.K_w]:

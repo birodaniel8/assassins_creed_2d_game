@@ -1,5 +1,6 @@
 import pygame
 import os
+import sys
 import numpy as np
 from game_config import WIDTH, HEIGHT, FPS, WHITE, BACKGROUND, WALL_LOCATIONS, BRIDGE_LOCATIONS, ARROW_LOCATION, \
     KING_LOCATION, WALL_1, WALL_2, WALL_3, WALL_4, BRIDGE, ARROW, FIGHT_CLOUD, KING, PLAYER_STAND, GUARD_STAND, \
@@ -53,8 +54,7 @@ def draw_window(player, guards, bushes):
         WIN.blit(reshape_and_rotate(ARROW, 100, 0), ARROW_LOCATION)
 
     # player is hiding if he is under the bushes:
-    if np.sum([player.rect.colliderect(bush.rect) for bush in bushes]) > 0:
-        player.hiding = True
+    if player.hiding:
         WIN.blit(reshape_and_rotate(ARROW, 35, player.rotation-90), (player.x, player.y))
 
     # interaction with guards:
@@ -141,6 +141,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()  # quit game
+                sys.exit()
 
             # start the game with pressing Enter (return):
             if not game_started and event.type == pygame.KEYDOWN:
