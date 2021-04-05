@@ -12,7 +12,7 @@ WHITE = (255, 255, 255)
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Walking man")  # app title
+pygame.display.set_caption("Pygame Creed 2D")  # app title
 
 # load images:
 PLAYER_RIGHT = pygame.image.load(os.path.join("Assets", "player_right.png"))

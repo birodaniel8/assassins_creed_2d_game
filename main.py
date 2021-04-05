@@ -11,7 +11,7 @@ from utils import rotate_around_center, reshape_and_rotate, get_distance_and_ang
 pygame.init()
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Walking man")  # app title
+pygame.display.set_caption("Pygame Creed 2D")  # app title
 
 # user generated events for guard alerts and for finding the king:
 GUARD_ALERT = pygame.USEREVENT + 1  # these numbers are just identifiers
