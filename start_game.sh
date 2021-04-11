@@ -1,0 +1,1 @@
+docker build -t dockerize_ac . && docker run dockerize_ac
