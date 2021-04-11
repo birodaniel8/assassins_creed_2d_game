@@ -2,8 +2,7 @@ FROM ubuntu:20.10
 
 RUN apt-get update -y && \
     apt-get install bash && \
-    apt-get install -y python3-pip python3-dev && \
-    apt-get install -y python3-pygame
+    apt-get install -y python3 python3-pip python3-dev python3-pygame
 
 COPY ./requirements.txt /requirements.txt
 
