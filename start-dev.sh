@@ -1,0 +1,1 @@
+docker build -t assassins_creed_2d . && docker run -it assassins_creed_2d
