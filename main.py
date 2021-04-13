@@ -152,13 +152,13 @@ def main():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
                         player.walk_start_time = pygame.time.get_ticks()  # moving
-                    if event.key == pygame.K_LCTRL:
+                    if event.key == pygame.K_x:
                         player.speed *= 2  # running
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_UP:
                         player.pic = PLAYER_STAND  # stop moving
-                    if event.key == pygame.K_LCTRL:
+                    if event.key == pygame.K_x:
                         player.speed /= 2  # stop running
 
                 # break the game if the player or a dead body was been detected:
