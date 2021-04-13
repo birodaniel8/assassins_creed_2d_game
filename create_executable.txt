@@ -1,0 +1,5 @@
+Steps to create an executable file one file for windows:
+- install pyisntaller
+- run: pyisntaller main.py --onefile --noconsole
+- copy the Assets folder to the new dist folder (the exe file there can start the game)
+- zip the file and the assets folder
